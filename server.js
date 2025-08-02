@@ -11,8 +11,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // MongoDB configuration
-const MONGODB_URI = 'mongodb://localhost:27017/';
-const DB_NAME = 'quickdesk';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
+const DB_NAME = process.env.DB_NAME || 'quickdesk';
 
 let db = null;
 
@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // JWT Secret
-const JWT_SECRET = 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Connect to MongoDB
 async function connectToMongoDB() {

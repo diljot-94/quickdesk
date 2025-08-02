@@ -1,0 +1,28 @@
+{
+  "name": "QuickDesk",
+  "description": "A modern help desk ticket management system",
+  "repository": "https://github.com/yourusername/quickdesk",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["node", "express", "mongodb", "helpdesk", "ticket"],
+  "env": {
+    "PORT": {
+      "description": "The port the app will run on",
+      "value": "3001"
+    },
+    "JWT_SECRET": {
+      "description": "Secret key for JWT tokens",
+      "generator": "secret"
+    }
+  },
+  "addons": [
+    {
+      "plan": "mongolab:sandbox",
+      "as": "MONGODB"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+} 
