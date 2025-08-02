@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickDesk - Help Desk Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-ticket-alt"></i>
+                <span>QuickDesk</span>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="#" class="nav-link" data-page="dashboard">Dashboard</a>
+                <a href="#" class="nav-link" data-page="tickets">My Tickets</a>
+                <a href="#" class="nav-link" data-page="create-ticket">Create Ticket</a>
+                <a href="#" class="nav-link admin-only" data-page="admin" style="display: none;">Admin</a>
+                <div class="notification-bell" id="notificationBell">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount" style="display: none;">0</span>
+                </div>
+                <a href="#" class="nav-link" id="logoutBtn">Logout</a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Auth Forms -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <div class="form-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" style="display: none;">
+                <h2>Create Account</h2>
+                <div class="form-group">
+                    <input type="text" id="registerUsername" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="registerEmail" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="registerPassword" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                    <select id="registerRole">
+                        <option value="user">User</option>
+                        <option value="agent">Support Agent</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group" id="specializationsGroup" style="display: none;">
+                    <label for="registerSpecializations">Specializations (comma-separated)</label>
+                    <input type="text" id="registerSpecializations" placeholder="e.g., printer, computer, network">
+                    <small>Enter keywords that describe your expertise (e.g., printer, computer, network, software)</small>
+                </div>
+                <div class="form-group" id="adminKeyGroup" style="display: none;">
+                    <label for="registerAdminKey">Admin Key</label>
+                    <input type="password" id="registerAdminKey" placeholder="Enter admin key">
+                    <small>Required for admin registration</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container" style="display: none;">
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page active">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-ticket-alt"></i>
+                        <div class="stat-info">
+                            <h3 id="totalTickets">0</h3>
+                            <p>Total Tickets</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div class="stat-info">
+                            <h3 id="openTickets">0</h3>
+                            <p>Open Tickets</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="stat-info">
+                            <h3 id="resolvedTickets">0</h3>
+                            <p>Resolved</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filters-section">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search tickets...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-controls">
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="sortFilter">
+                        <option value="recent">Most Recent</option>
+                        <option value="replies">Most Replies</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tickets-container" id="ticketsContainer">
+                <!-- Tickets will be loaded here -->
+            </div>
+
+            <div class="pagination" id="pagination">
+                <!-- Pagination will be generated here -->
+            </div>
+        </div>
+
+        <!-- Create Ticket Page -->
+        <div id="createTicketPage" class="page">
+            <div class="page-header">
+                <h1>Create New Ticket</h1>
+                <div id="debugInfo" style="background: yellow; padding: 10px; margin: 10px 0; display: none;">
+                    <strong>Debug Info:</strong> This page should be visible if you can see this message.
+                </div>
+            </div>
+            <div class="form-container">
+                <form id="createTicketForm" class="ticket-form">
+                    <div class="form-group">
+                        <label for="ticketSubject">Subject</label>
+                        <input type="text" id="ticketSubject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketCategory">Category</label>
+                        <select id="ticketCategory" required>
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketDescription">Description</label>
+                        <textarea id="ticketDescription" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketAttachment">Attachment (Optional)</label>
+                        <input type="file" id="ticketAttachment">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="showPage('dashboard')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Ticket</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- My Tickets Page -->
+        <div id="ticketsPage" class="page">
+            <div class="page-header">
+                <h1>My Tickets</h1>
+            </div>
+            
+            <div class="filters-section">
+                <div class="search-box">
+                    <input type="text" id="myTicketsSearchInput" placeholder="Search my tickets...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-controls">
+                    <select id="myTicketsStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="open">Open</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                    <select id="myTicketsCategoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="myTicketsSortFilter">
+                        <option value="recent">Most Recent</option>
+                        <option value="replies">Most Replies</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="tickets-container" id="myTicketsContainer">
+                <!-- My tickets will be loaded here -->
+            </div>
+
+            <div class="pagination" id="myTicketsPagination">
+                <!-- Pagination will be generated here -->
+            </div>
+        </div>
+
+        <!-- Ticket Detail Page -->
+        <div id="ticketDetailPage" class="page">
+            <div class="page-header">
+                <button class="btn btn-secondary" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <h1 id="ticketDetailTitle">Ticket Details</h1>
+            </div>
+            <div class="ticket-detail-container" id="ticketDetailContainer">
+                <!-- Ticket details will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Notifications Page -->
+        <div id="notificationsPage" class="page">
+            <div class="page-header">
+                <button class="btn btn-secondary" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <h1>Notifications</h1>
+            </div>
+            <div class="notifications-container" id="notificationsContainer">
+                <!-- Notifications will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Chat Page -->
+        <div id="chatPage" class="page">
+            <div class="page-header">
+                <button class="btn btn-secondary" onclick="showPage('dashboard')">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <h1 id="chatTitle">Chat with Support Agent</h1>
+            </div>
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-info">
+                        <h3 id="chatTicketSubject">Ticket: Loading...</h3>
+                        <p id="chatAgentInfo">Agent: Loading...</p>
+                    </div>
+                    <div class="chat-status">
+                        <span id="chatStatus" class="status-badge">Connecting...</span>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Messages will be loaded here -->
+                </div>
+                <div class="chat-input">
+                    <textarea id="chatMessageInput" placeholder="Type your message..." rows="3"></textarea>
+                    <button id="sendMessageBtn" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Send
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Page -->
+        <div id="adminPage" class="page">
+            <div class="page-header">
+                <h1>Admin Panel</h1>
+            </div>
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-tab="users">Users</button>
+                <button class="admin-tab" data-tab="categories">Categories</button>
+            </div>
+            
+            <div id="usersTab" class="admin-content active">
+                <div class="admin-section">
+                    <h3>User Management</h3>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="categoriesTab" class="admin-content">
+                <div class="admin-section">
+                    <h3>Category Management</h3>
+                    <form id="addCategoryForm" class="admin-form">
+                        <div class="form-group">
+                            <input type="text" id="newCategoryName" placeholder="Category name" required>
+                            <button type="submit" class="btn btn-primary">Add Category</button>
+                        </div>
+                    </form>
+                    <div class="categories-list" id="categoriesList">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
